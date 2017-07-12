@@ -58,6 +58,7 @@ tomcat_start () {
     cp $SECURITY_DIRECTORY/tomcat-users.xml $TOMCAT_BASE_DIR/conf/tomcat-users.xml
     cp $TOMCAT_CONFIG_DIRECTORY/logging.properties $TOMCAT_BASE_DIR/conf/logging.properties
     cp $TOMCAT_CONFIG_DIRECTORY/log4j.properties $TOMCAT_RICE_WEBINF_DIR/classes/log4j.properties
+    cp $RICE_CONFIG_DIRECTORY/rice-config.xml $TOMCAT_BASE_DIR/conf/rice-config.xml
 
     # copy in New Relic config file
     log "Copying New Relic configuration file."
@@ -69,10 +70,6 @@ tomcat_start () {
     echo_time "Copying oracle JDBC drivers."
     cp $TOMCAT_CONFIG_DIRECTORY/classes/* $TOMCAT_SHARE_LIB/*
 
-    # Get changelogs for liquibase
-    log "Loading changelog files for liquibase."
-    echo_time "Loading changelog files for liquibase"
-
     # Swap SMTP value to work for AWS
     sed -i "s/mail.smtp.host=smtp.local/mail.smtp.host=email-smtp.us-west-2.amazonaws.com/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
     sed -i "s/mail.smtp.port=25/mail.smtp.port=587/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
@@ -80,7 +77,7 @@ tomcat_start () {
     sed -i "s/mail.smtp.auth=false/mail.smtp.auth=true/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
 
     # set up setenv.sh script for export of environment variables
-    cp $TOMCAT_CONFIG_DIRECTORY/setenv.sh $TOMCAT_SHARE_BIN/setenv.sh
+    cp $RICE_CONFIG_DIRECTORY/rice-setenv.sh $TOMCAT_SHARE_BIN/setenv.sh
     chmod +x $TOMCAT_SHARE_BIN/setenv.sh
 
     log "Starting up tomcat"
