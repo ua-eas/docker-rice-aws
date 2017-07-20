@@ -1,10 +1,10 @@
 ﻿#!/bin/bash
 
-KFS_STARTUP_LOG="kfs-startup.log"
+RICE_STARTUP_LOG="rice-startup.log"
 
 # Basic logging command to put timestamps in front of things
 log() {
-  date +"%b %e, %Y %r $*" >> "$LOGS_DIRECTORY/$KFS_STARTUP_LOG"
+  date +"%b %e, %Y %r $*" >> "$LOGS_DIRECTORY/$RICE_STARTUP_LOG"
 }
 
 echo_time() {
@@ -25,30 +25,27 @@ tomcat_start () {
         mkdir $TOMCAT_BASE_DIR/temp
     fi
 
-    # make logs directory and kfs-startup.log if they do not exists
-    if [ ! -f $LOGS_DIRECTORY/kfs-startup.log ]
+    # make logs directory and rice-startup.log if they do not exists
+    if [ ! -f $LOGS_DIRECTORY/$RICE_STARTUP_LOG ]
     then
         mkdir -p $LOGS_DIRECTORY
         log "Creating logs directory."
         echo_time "Creating logs directory."
-        touch $LOGS_DIRECTORY/kfs-startup.log
+        touch $LOGS_DIRECTORY/$RICE_STARTUP_LOG
     fi
 
     chmod -R 777  $LOGS_DIRECTORY
     
-    # Make our kfs webapp directory if it doesn't exist
-    if [ ! -d $TOMCAT_KFS_DIR ]
+    # Make our rice webapp directory if it doesn't exist
+    if [ ! -d $TOMCAT_RICE_DIR ]
     then
-        mkdir $TOMCAT_KFS_DIR
+        mkdir $TOMCAT_RICE_DIR
     fi
 
-    log "Using KFS_ENV_NAME: $KFS_ENV_NAME."
-    echo_time "Using KFS_ENV_NAME: $KFS_ENV_NAME."
-
     # Extract the WAR file
-    cd $TOMCAT_KFS_DIR
-    echo "Unzipping $TOMCAT_KFS_DIR/kfs.war..."
-    unzip -q -u "$TOMCAT_KFS_DIR/kfs.war"
+    cd $TOMCAT_RICE_DIR
+    echo "Unzipping $TOMCAT_RICE_DIR/rice.war..."
+    unzip -q -u "$TOMCAT_RICE_DIR/rice.war"
     echo "Done!"
 
     # copy in tomcat configuration files
@@ -56,11 +53,12 @@ tomcat_start () {
     echo_time "Copying tomcat configuration files."
     # create directories if they don't exist
     mkdir -p $TOMCAT_BASE_DIR/conf/
-    mkdir -p $TOMCAT_KFS_WEBINF_DIR/classes/
-    cp $TOMCAT_CONFIG_DIRECTORY/server.xml $TOMCAT_BASE_DIR/conf/server.xml
+    mkdir -p $TOMCAT_RICE_WEBINF_DIR/classes/
+    cp $RICE_CONFIG_DIRECTORY/rice-server.xml $TOMCAT_BASE_DIR/conf/server.xml
     cp $SECURITY_DIRECTORY/tomcat-users.xml $TOMCAT_BASE_DIR/conf/tomcat-users.xml
     cp $TOMCAT_CONFIG_DIRECTORY/logging.properties $TOMCAT_BASE_DIR/conf/logging.properties
-    cp $TOMCAT_CONFIG_DIRECTORY/log4j.properties $TOMCAT_KFS_WEBINF_DIR/classes/log4j.properties
+    cp $TOMCAT_CONFIG_DIRECTORY/log4j.properties $TOMCAT_RICE_WEBINF_DIR/classes/log4j.properties
+    cp $RICE_CONFIG_DIRECTORY/rice-config.xml $TOMCAT_BASE_DIR/conf/rice-config.xml
 
     # copy in New Relic config file
     log "Copying New Relic configuration file."
@@ -72,42 +70,14 @@ tomcat_start () {
     echo_time "Copying oracle JDBC drivers."
     cp $TOMCAT_CONFIG_DIRECTORY/classes/* $TOMCAT_SHARE_LIB/*
 
-    # Get changelogs for liquibase
-    log "Loading changelog files for liquibase."
-    echo_time "Loading changelog files for liquibase"
-
-    # create new directory to hold the files extracted from kfs-core-ua jar file
-    mkdir -p $TOMCAT_KFS_CORE_DIR
-
-    # create new directory to hold the UA changelog files
-    mkdir -p $UA_DB_CHANGELOGS_DIR
-
-    # extract files in kfs-core-ua* jar
-    # cd $TOMCAT_KFS_CORE_DIR
-    echo "Unzipping $TOMCAT_KFS_DIR/WEB-INF/lib/kfs-core-ua* ..."
-    unzip -q -u $TOMCAT_KFS_DIR/WEB-INF/lib/kfs-core-ua* -d $TOMCAT_KFS_CORE_DIR
-    echo "Done!"
-
-    # copy edu changelog files to changelogs directory
-    mv $TOMCAT_KFS_CORE_DIR/edu/ $UA_DB_CHANGELOGS_DIR/
-
-    # run liquibase here
-    # tag with KFS_ENV_NAME until we figure out how to pass in build version like on-premise docker container work
-    log "Running liquibase update."
-    echo_time "Running liquibase update."
-    liquibase_update_kfs.sh $KFS_ENV_NAME
-
-    log "Completed running liquibase update"
-    echo_time "Completed running liquibase update"
-
     # Swap SMTP value to work for AWS
-    sed -i "s/mail.smtp.host=smtp.local/mail.smtp.host=email-smtp.us-west-2.amazonaws.com/" $TOMCAT_KFS_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.port=25/mail.smtp.port=587/" $TOMCAT_KFS_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.starttls.enable=false/mail.smtp.starttls.enable=true/" $TOMCAT_KFS_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.auth=false/mail.smtp.auth=true/" $TOMCAT_KFS_CORE_DIR/institutional-config.properties
+    sed -i "s/mail.smtp.host=smtp.local/mail.smtp.host=email-smtp.us-west-2.amazonaws.com/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
+    sed -i "s/mail.smtp.port=25/mail.smtp.port=587/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
+    sed -i "s/mail.smtp.starttls.enable=false/mail.smtp.starttls.enable=true/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
+    sed -i "s/mail.smtp.auth=false/mail.smtp.auth=true/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
 
     # set up setenv.sh script for export of environment variables
-    cp $TOMCAT_CONFIG_DIRECTORY/setenv.sh $TOMCAT_SHARE_BIN/setenv.sh
+    cp $RICE_CONFIG_DIRECTORY/rice-setenv.sh $TOMCAT_SHARE_BIN/setenv.sh
     chmod +x $TOMCAT_SHARE_BIN/setenv.sh
 
     log "Starting up tomcat"
@@ -116,10 +86,10 @@ tomcat_start () {
     $TOMCAT_SHARE_BIN/catalina.sh start
 
     # ensure logs exists
-    touch /logs/kfs.log /logs/catalina.out
+    touch /logs/rice.log /logs/catalina.out
 
     # Tail the log files to keep the container alive
-    tail -f /logs/kfs.log /logs/catalina.out
+    tail -f /logs/rice.log /logs/catalina.out
 
     return;
 }
