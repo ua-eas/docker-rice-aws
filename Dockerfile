@@ -8,7 +8,7 @@ COPY bin /usr/local/bin/
 # set rice web app directory owner and group
 RUN chmod +x /usr/local/bin/*
 
-# create some useful shorcut environment variables
+# create some useful shortcut environment variables
 ENV TOMCAT_BASE_DIR=$CATALINA_HOME
 ENV TOMCAT_SHARE_LIB=$TOMCAT_BASE_DIR/lib
 ENV TOMCAT_SHARE_BIN=$TOMCAT_BASE_DIR/bin
@@ -19,6 +19,7 @@ ENV TRANSACTIONAL_DIRECTORY=/transactional
 ENV CONFIG_DIRECTORY=/configuration
 ENV LOGS_DIRECTORY=/logs
 ENV SECURITY_DIRECTORY=/security
+ENV SMTP_SECURITY_DIRECTORY=/security/smtp
 ENV TOMCAT_CONFIG_DIRECTORY=/configuration/tomcat-config
 ENV RICE_CONFIG_DIRECTORY=/configuration/rice-config
 
