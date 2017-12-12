@@ -75,11 +75,12 @@ tomcat_start () {
     echo_time "Copying oracle JDBC drivers."
     cp $TOMCAT_CONFIG_DIRECTORY/classes/* $TOMCAT_SHARE_LIB/*
 
-    # Swap SMTP value to work for AWS
-    sed -i "s/mail.smtp.host=smtp.local/mail.smtp.host=email-smtp.us-west-2.amazonaws.com/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.port=25/mail.smtp.port=587/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.starttls.enable=false/mail.smtp.starttls.enable=true/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
-    sed -i "s/mail.smtp.auth=false/mail.smtp.auth=true/" $TOMCAT_RICE_CORE_DIR/institutional-config.properties
+    # Copy authinfo and regenerate authinfo.db after initial file creation on EC2 instance via CF and OpsWorks
+    # Related documentation: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html
+    cp $SMTP_SECURITY_DIRECTORY/authinfo /etc/mail/
+    makemap hash /etc/mail/authinfo.db < /etc/mail/authinfo
+    # Restart sendmail to load new authinfo
+    sudo /etc/init.d/sendmail restart
 
     # set up setenv.sh script for export of environment variables
     cp $RICE_CONFIG_DIRECTORY/rice-setenv.sh $TOMCAT_SHARE_BIN/setenv.sh
