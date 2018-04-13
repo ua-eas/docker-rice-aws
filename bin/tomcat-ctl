@@ -13,6 +13,9 @@ echo_time() {
 
 tomcat_start () {
 
+    # set up default umask
+    umask 002
+    
     #Set up linking to get LOGS_DIRECTORY backed by EFS
     rm -Rf $LOGS_DIRECTORY
     mkdir -p "/efs/logs/$HOSTNAME/"
