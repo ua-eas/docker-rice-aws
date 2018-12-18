@@ -75,9 +75,31 @@ tomcat_start () {
     cp $SECURITY_DIRECTORY/newrelic.yml $TOMCAT_SHARE_LIB/newrelic.yml
 
     # copy in oracle JDBC drivers
-    log "Copying oracle JDBC drivers."
-    echo_time "Copying oracle JDBC drivers."
-    cp $TOMCAT_CONFIG_DIRECTORY/classes/* $TOMCAT_SHARE_LIB/*
+    log "Copying jar files to Tomcat lib directory."
+    echo_time "Copying jar files to Tomcat lib directory."
+    cp $TOMCAT_CONFIG_DIRECTORY/classes/* $TOMCAT_SHARE_LIB/
+
+    # Get changelogs for liquibase
+    log "Loading changelog files for liquibase."
+    echo_time "Loading changelog files for liquibase"
+
+    # create new directory to hold the UA changelog files
+    mkdir -p $UA_DB_CHANGELOGS_DIR
+
+    # copy rice-db-ua .jar to changelogs directory and extract files
+    cp $TOMCAT_RICE_DIR/WEB-INF/lib/rice-db-ua* $UA_DB_CHANGELOGS_DIR/
+    cd $UA_DB_CHANGELOGS_DIR/
+    unzip rice-db-ua*.jar
+    cd -
+
+    # run liquibase here
+    # tag with KFS_ENV_NAME until we figure out how to pass in build version like on-premise docker container work
+    log "Running liquibase update."
+    echo_time "Running liquibase update."
+    liquibase_rice_update.sh $KFS_ENV_NAME >> $LOGS_DIRECTORY/$RICE_STARTUP_LOG 2>&1 &
+
+    log "Completed running liquibase update"
+    echo_time "Completed running liquibase update"
 
     # Copy authinfo and regenerate authinfo.db after initial file creation on EC2 instance via CF and OpsWorks
     # Related documentation: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html
