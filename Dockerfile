@@ -29,7 +29,7 @@ ENV TOMCAT_CONFIG_DIRECTORY=/configuration/tomcat-config
 ENV RICE_CONFIG_DIRECTORY=/configuration/rice-config
 ENV UA_DB_CHANGELOGS_DIR=$TOMCAT_RICE_DIR/changelogs
 
-# copy in the new relic jar file
+# copy in the New Relic, liquibase, and spring-instrument-tomcat .jar files
 COPY classes $TOMCAT_SHARE_LIB
 
 # setup log rotate
