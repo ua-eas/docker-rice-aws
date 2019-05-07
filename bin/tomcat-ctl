@@ -21,10 +21,7 @@ tomcat_start () {
     mkdir -p "/efs/logs/$HOSTNAME/"
     ln -s "/efs/logs/$HOSTNAME/" $LOGS_DIRECTORY
 
-    # forcibly run logrotate on our log files during tomcat startup
-    logrotate -f /etc/logrotate.conf
-
-    # re-map the tomcat logs directory to our mapped container volume
+     # re-map the tomcat logs directory to our mapped container volume
     rm -f $TOMCAT_BASE_DIR/logs
     ln -s $LOGS_DIRECTORY $TOMCAT_BASE_DIR/logs
 
@@ -45,6 +42,9 @@ tomcat_start () {
 
     chmod -R 777  $LOGS_DIRECTORY
     
+    # forcibly run logrotate on our log files during tomcat startup
+    logrotate -f /etc/logrotate.conf
+
     # Make our rice webapp directory if it doesn't exist
     if [ ! -d $TOMCAT_RICE_DIR ]
     then
