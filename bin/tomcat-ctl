@@ -45,6 +45,9 @@ tomcat_start () {
 
     chmod -R 777  $LOGS_DIRECTORY
     
+    # forcibly run logrotate on our log files during tomcat startup
+    logrotate -f /etc/logrotate.conf
+
     # Make our rice webapp directory if it doesn't exist
     if [ ! -d $TOMCAT_RICE_DIR ]
     then
