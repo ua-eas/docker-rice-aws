@@ -66,7 +66,6 @@ tomcat_start () {
     cp $RICE_CONFIG_DIRECTORY/rice-server.xml $TOMCAT_BASE_DIR/conf/server.xml
     cp $SECURITY_DIRECTORY/tomcat-users.xml $TOMCAT_BASE_DIR/conf/tomcat-users.xml
     cp $TOMCAT_CONFIG_DIRECTORY/logging.properties $TOMCAT_BASE_DIR/conf/logging.properties
-    cp $TOMCAT_CONFIG_DIRECTORY/log4j.properties $TOMCAT_RICE_WEBINF_DIR/classes/log4j.properties
     cp $RICE_CONFIG_DIRECTORY/rice-config.xml $TOMCAT_BASE_DIR/conf/rice-config.xml
 
     # copy in New Relic config file
