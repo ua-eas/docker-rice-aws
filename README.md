@@ -7,7 +7,18 @@ This repository is for the Kuali team's Rice image used for the UAccess Financia
 This project defines an image used for the Rice Docker container.
 
 ### Requirements
-This is based on a **java8tomcat7** tagged image from the _397167497055.dkr.ecr.us-west-2.amazonaws.com/kuali/tomcat7_ AWS ECR repository. 
+This is based on a **java11tomcat8** tagged image from the _397167497055.dkr.ecr.us-west-2.amazonaws.com/kuali/tomcat8_ AWS ECR repository. 
+
+### Local Testing
+The following steps can be used to troubleshoot changes to the Dockerfile without running Rice (which requires a valid UAF database):
+1. Make sure you have a `kuali/tomcat8:java11tomcat8-ua-release-$BASE_IMAGE_TAG_DATE` image in your Docker repository. (This may require a local build of the *java11tomcat8* base image).
+2. Temporarily change the Dockerfile to define the base image as `FROM kuali/tomcat8:java11tomcat8-ua-release-$BASE_IMAGE_TAG_DATE` and the ENTRYPOINT as `ENTRYPOINT /usr/local/bin/local-testing.sh`.
+3. Run this on the command line to get a rice.war of the Rice build to include in your Docker image. The $RICE_APP_VERSION should be what is in a parent pom.xml (e.g. 2.7.0-ua-release54-SNAPSHOT), and $RICE_BRANCH_NAME should be an existing feature branch or rice-2.6-ua-development. 
+Example for Linux: `wget "https://kfs.ua-uits-kuali-nonprod.arizona.edu/nexus/service/local/artifact/maven/redirect?r=snapshots&g=org.kuali.rice&a=rice-standalone&v=$RICE_APP_VERSION&e=war&c=$RICE_BRANCH_NAME" -O files/rice.war`
+Example for Mac: `curl "https://kfs.ua-uits-kuali-nonprod.arizona.edu/nexus/service/local/artifact/maven/redirect?r=snapshots&g=org.kuali.rice&a=rice-standalone&v=$RICE_APP_VERSION&e=war&c=$RICE_BRANCH_NAME" -o "files/rice.war"`
+4. Run this command to build a *rice* Docker image, replacing $BASE_IMAGE_TAG_DATE with the date referenced in step 1: `docker build --build-arg BASE_IMAGE_TAG_DATE=$BASE_IMAGE_TAG_DATE -t kuali/rice:rice-ua-release-test .`
+5. You can run a rice Docker container using a command like: `docker run -d --name=rice --privileged=true kuali/rice:rice-ua-release-test .`
+6. Delete the files/rice.war and undo the temporary changes to the Dockerfile before committing your changes.
 
 ### Building With Jenkins
 The build command we use is `docker build --build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY} --build-arg BASE_IMAGE_TAG_DATE=${BASE_IMAGE_TAG_DATE} -t ${DOCKER_REPOSITORY_NAME} .`
