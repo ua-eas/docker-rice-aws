@@ -28,15 +28,16 @@ ENV SMTP_SECURITY_DIRECTORY=/security/smtp
 ENV TOMCAT_CONFIG_DIRECTORY=/configuration/tomcat-config
 ENV RICE_CONFIG_DIRECTORY=/configuration/rice-config
 ENV UA_DB_CHANGELOGS_DIR=$TOMCAT_RICE_DIR/changelogs
+ENV TOMCAT_RICE_METAINF_DIR=$TOMCAT_RICE_DIR/META-INF
 
 # copy in the New Relic, liquibase, and spring-instrument-tomcat .jar files
 COPY classes $TOMCAT_SHARE_LIB
 
 # setup log rotate
-# theoretically logrotate will run every hour and use the configuration defined in the /etc/logrotate.d/tomcat7 file
+# theoretically logrotate will run every hour and use the configuration defined in the /etc/logrotate.d/tomcat file
 RUN mv /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
-ADD logrotate /etc/logrotate.d/tomcat7
-RUN chmod 644 /etc/logrotate.d/tomcat7
+ADD logrotate /etc/logrotate.d/tomcat
+RUN chmod 644 /etc/logrotate.d/tomcat
 
 # Copy the Application WAR in
 COPY files/rice.war $TOMCAT_RICE_DIR/rice.war
