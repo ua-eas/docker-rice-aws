@@ -1,7 +1,7 @@
 #!/bin/bash
 # liquibase_rice.sh: main liquibase script based on liquibase_kfs.sh
 # Calls liquibase with correct database parameters
-# for this environment, path to ojdbc6.jar file.
+# for this environment, path to ojdbc8-19c.jar file.
 
 LIQUIBASE_HOME=$TOMCAT_SHARE_LIB
 RICE_CONFIG_FILE=$RICE_CONFIG_DIRECTORY/rice-config.xml
