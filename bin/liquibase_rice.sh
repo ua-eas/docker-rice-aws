@@ -11,7 +11,7 @@ LIQUIBASE_DB_USERNAME=$(grep "datasource.username" $RICE_CONFIG_FILE | sed -e 's
 LIQUIBASE_DB_PASSWORD=$(grep "datasource.password" $RICE_CONFIG_FILE | sed -e 's/^[ \t]*//' | sed -e 's/<param name="datasource\.password">//' | sed -e 's/<\/param>//')
 LIQUIBASE_DB_URL=$(grep "datasource.url" $RICE_CONFIG_FILE | sed -e 's/^[ \t]*//' | sed -e 's/<param name="datasource\.url">//' | sed -e 's/<\/param>//')
 
-exec /usr/bin/java -jar $LIQUIBASE_HOME/liquibase-3.3.5.jar \
+exec /usr/bin/java -jar $LIQUIBASE_HOME/liquibase-3.10.0.jar \
 --url="$LIQUIBASE_DB_URL" \
 --username=$LIQUIBASE_DB_USERNAME \
 --password=$LIQUIBASE_DB_PASSWORD \
