@@ -29,8 +29,9 @@ ENV TOMCAT_CONFIG_DIRECTORY=/configuration/tomcat-config
 ENV RICE_CONFIG_DIRECTORY=/configuration/rice-config
 ENV UA_DB_CHANGELOGS_DIR=$TOMCAT_RICE_DIR/changelogs
 ENV TOMCAT_RICE_METAINF_DIR=$TOMCAT_RICE_DIR/META-INF
+ENV LIQUIBASE_HOME=/opt/liquibase
 
-# copy in the New Relic, liquibase, and spring-instrument-tomcat .jar files
+# copy in the New Relic and and spring-instrument-tomcat .jar files
 COPY classes $TOMCAT_SHARE_LIB
 
 # setup log rotate
@@ -58,5 +59,13 @@ COPY sendmail/sendmail.mc /etc/mail/sendmail.mc
 RUN  sudo chmod 666 /etc/mail/sendmail.cf
 RUN  sudo m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
 RUN  sudo chmod 644 /etc/mail/sendmail.cf
+
+# set up liquibase; update if version bump
+RUN mkdir /opt/liquibase
+COPY liquibase $LIQUIBASE_HOME
+RUN cd $LIQUIBASE_HOME && \ 
+    tar -zxvf $LIQUIBASE_HOME/liquibase-3.5.5-bin.tar.gz && \
+    cd -
+ENV PATH=$PATH:$LIQUIBASE_HOME
 
 ENTRYPOINT /usr/local/bin/tomcat-start
