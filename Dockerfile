@@ -1,6 +1,6 @@
 ARG  DOCKER_REGISTRY
 ARG  BASE_IMAGE_TAG_DATE
-FROM $DOCKER_REGISTRY/kuali/tomcat7:java8tomcat7-ua-release-$BASE_IMAGE_TAG_DATE
+FROM $DOCKER_REGISTRY/kuali/tomcat8:java11tomcat8-ua-release-$BASE_IMAGE_TAG_DATE
 
 RUN groupadd -r kuali && useradd -r -g kuali kualiadm
 
@@ -28,22 +28,24 @@ ENV SMTP_SECURITY_DIRECTORY=/security/smtp
 ENV TOMCAT_CONFIG_DIRECTORY=/configuration/tomcat-config
 ENV RICE_CONFIG_DIRECTORY=/configuration/rice-config
 ENV UA_DB_CHANGELOGS_DIR=$TOMCAT_RICE_DIR/changelogs
+ENV TOMCAT_RICE_METAINF_DIR=$TOMCAT_RICE_DIR/META-INF
+ENV LIQUIBASE_HOME=/opt/liquibase
 
-# copy in the New Relic, liquibase, and spring-instrument-tomcat .jar files
+# copy in the New Relic and and spring-instrument-tomcat .jar files
 COPY classes $TOMCAT_SHARE_LIB
 
 # setup log rotate
-# theoretically logrotate will run every hour and use the configuration defined in the /etc/logrotate.d/tomcat7 file
+# theoretically logrotate will run every hour and use the configuration defined in the /etc/logrotate.d/tomcat file
 RUN mv /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
-ADD logrotate /etc/logrotate.d/tomcat7
-RUN chmod 644 /etc/logrotate.d/tomcat7
+ADD logrotate /etc/logrotate.d/tomcat
+RUN chmod 644 /etc/logrotate.d/tomcat
 
 # Copy the Application WAR in
 COPY files/rice.war $TOMCAT_RICE_DIR/rice.war
 
 # Install Sendmail Services
 #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html
-RUN yum -y clean all && rpmdb --rebuilddb && yum -y install sendmail m4 sendmail-cf cyrus-sasl-plain
+RUN yum -y install sendmail m4 sendmail-cf cyrus-sasl-plain
 
 # Append /etc/mail/access file
 RUN echo "Connect:email-smtp.us-west-2.amazonaws.com RELAY" >> /etc/mail/access
@@ -57,5 +59,13 @@ COPY sendmail/sendmail.mc /etc/mail/sendmail.mc
 RUN  sudo chmod 666 /etc/mail/sendmail.cf
 RUN  sudo m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
 RUN  sudo chmod 644 /etc/mail/sendmail.cf
+
+# set up liquibase; update if version bump
+RUN mkdir /opt/liquibase
+COPY liquibase $LIQUIBASE_HOME
+RUN cd $LIQUIBASE_HOME && \ 
+    tar -zxvf $LIQUIBASE_HOME/liquibase-3.5.5-bin.tar.gz && \
+    cd -
+ENV PATH=$PATH:$LIQUIBASE_HOME
 
 ENTRYPOINT /usr/local/bin/tomcat-start
