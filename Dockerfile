@@ -45,6 +45,7 @@ COPY files/rice.war $TOMCAT_RICE_DIR/rice.war
 
 # Install Sendmail Services
 #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html
+RUN yum -y clean all && yum -y makecache
 RUN yum -y install sendmail m4 sendmail-cf cyrus-sasl-plain
 
 # Append /etc/mail/access file
@@ -63,7 +64,7 @@ RUN  sudo chmod 644 /etc/mail/sendmail.cf
 # set up liquibase; update if version bump
 RUN mkdir /opt/liquibase
 COPY liquibase $LIQUIBASE_HOME
-RUN cd $LIQUIBASE_HOME && \ 
+RUN cd $LIQUIBASE_HOME && \
     tar -zxvf $LIQUIBASE_HOME/liquibase-3.5.5-bin.tar.gz && \
     cd -
 ENV PATH=$PATH:$LIQUIBASE_HOME
