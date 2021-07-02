@@ -43,8 +43,8 @@ RUN chmod 644 /etc/logrotate.d/tomcat
 # Copy the Application WAR in
 COPY files/rice.war $TOMCAT_RICE_DIR/rice.war
 
-# FIN-2165 Copy the generic error.jsp page into rice webapps context
-COPY webapp-files/error.jsp $TOMCAT_RICE_DIR/error.jsp
+# Copy the generic error.jsp page into webapps folder to be later copied into the rice context in tomcat-ctl
+COPY webapp-files/error.jsp $TOMCAT_WEBAPPS_DIR/error.jsp
 
 # Install Sendmail Services
 #http://docs.aws.amazon.com/ses/latest/DeveloperGuide/sendmail.html
