@@ -69,6 +69,7 @@ tomcat_start () {
     cp $TOMCAT_CONFIG_DIRECTORY/logging.properties $TOMCAT_BASE_DIR/conf/logging.properties
     cp $RICE_CONFIG_DIRECTORY/rice-config.xml $TOMCAT_BASE_DIR/conf/rice-config.xml
     cp $TOMCAT_CONFIG_DIRECTORY/context.xml $TOMCAT_RICE_METAINF_DIR/context.xml
+    mv $TOMCAT_WEBAPPS_DIR/error.jsp $TOMCAT_RICE_DIR/error.jsp
 
     # copy in New Relic config file
     log "Copying New Relic configuration file."
